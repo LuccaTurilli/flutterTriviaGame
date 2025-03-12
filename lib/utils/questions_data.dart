@@ -1,4 +1,4 @@
-import '../models/question.dart';
+/*import '../models/question.dart';
 
 List<Question> getQuestions() {
   return [
@@ -15,9 +15,10 @@ List<Question> getQuestions() {
     Question(
       text: '¿Cuál es mi nombre',
       options: ['Jaime', 'Luis', 'Satiro', 'Erik'],
-      correctAnswerIndex: 4,
+      correctAnswerIndex: 3,
     ),
 
     // Agrega más preguntas aquí
   ];
 }
+*/
