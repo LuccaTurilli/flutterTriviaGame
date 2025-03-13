@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 
 class ResultScreen extends StatelessWidget {
   final int score;
-  const ResultScreen({super.key, required this.score});
+  final Function(int) changeIndex;
+  const ResultScreen({
+    super.key,
+    required this.score,
+    required this.changeIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,8 @@ class ResultScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.popUntil(context, ModalRoute.withName('/'));
+                //  Navigator.popUntil(context, ModalRoute.withName('/'));
+                changeIndex(1);
               },
               child: Text('Volver al Inicio'),
             ),

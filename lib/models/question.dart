@@ -30,16 +30,29 @@ class Question {
     // Mezclamos las opciones para que no siempre aparezcan en el mismo orden
     allOptions.shuffle();
 
+    // Método para mostrar los artistas con las opciones a, b, c, d
+    List<String> allOptionsWithLetter = [];
+    // Usamos un bucle para iterar sobre la lista y asignar las letras
+    for (int i = 0; i < allOptions.length; i++) {
+      String letra = String.fromCharCode(
+        97 + i,
+      ); // 97 es el código ASCII de 'a'
+      allOptionsWithLetter.add('$letra) ${allOptions[i]}');
+    }
+
     // Retornamos una nueva instancia de Question con los datos procesados
     return Question(
       text: json['question'], // Texto de la pregunta
-      options: allOptions, // Opciones mezcladas
+      options: allOptionsWithLetter, // Opciones mezcladas
       correctAnswer: correctAnswer, // Respuesta correcta
     );
   }
 
   // Método para verificar si una respuesta seleccionada es correcta
   bool isCorrect(String answer) {
+    //quitamos las 2 primeras letras que son de la numeración
+    answer = answer.substring(answer.indexOf(')') + 2).trim();
+
     // Comparamos la respuesta seleccionada con la respuesta correcta
     return answer == correctAnswer;
   }

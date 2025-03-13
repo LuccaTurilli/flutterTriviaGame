@@ -3,15 +3,14 @@ import '../services/trivia_service.dart'; // Importamos el servicio para conecta
 import '../models/question.dart'; // Importamos el modelo de pregunta
 
 class GameScreen extends StatefulWidget {
-
-
-  final Function(int) changeIndex; // Callback para cambiar el índice del BottomNavigationBar
+  final Function(int)
+  changeIndex; // Callback para cambiar el índice del BottomNavigationBar
   final Function(int) updateScore; // Callback para actualizar el puntaje
 
   GameScreen({required this.changeIndex, required this.updateScore});
 
   @override
-    _GameScreenState createState() => _GameScreenState();
+  _GameScreenState createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
@@ -41,7 +40,10 @@ class _GameScreenState extends State<GameScreen> {
     try {
       // Obtenemos las preguntas desde la API usando el método `fetchQuestions`.
       // Usamos `await` para esperar a que el `Future` se complete.
-      final fetchedQuestions = await triviaService.fetchQuestions(amount: 5, category: "25");
+      final fetchedQuestions = await triviaService.fetchQuestions(
+        amount: 5,
+        category: "25",
+      );
 
       // Actualizamos el estado con las preguntas obtenidas y desactivamos el indicador de carga.
       setState(() {
@@ -78,7 +80,7 @@ class _GameScreenState extends State<GameScreen> {
       });
     } else {
       // Si ya no hay más preguntas, navegamos a la pantalla de resultados.
- widget.updateScore(score); // Actualizamos el puntaje global
+      widget.updateScore(score); // Actualizamos el puntaje global
       widget.changeIndex(2); // Navegamos a la pantalla de resultados (índice 2)
     }
   }
@@ -100,7 +102,9 @@ class _GameScreenState extends State<GameScreen> {
       return Scaffold(
         appBar: AppBar(title: Text('Trivia App')),
         body: Center(
-          child: Text('No se pudieron cargar las preguntas.'), // Mensaje de error
+          child: Text(
+            'No se pudieron cargar las preguntas.',
+          ), // Mensaje de error
         ),
       );
     }
@@ -109,32 +113,43 @@ class _GameScreenState extends State<GameScreen> {
     final currentQuestion = questions[currentQuestionIndex];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Pregunta ${currentQuestionIndex + 1}'), // Mostramos el número de la pregunta
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0), // Agregamos un margen interno
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start, // Alineamos el contenido a la izquierda
-          children: [
-            // Mostramos el texto de la pregunta
-            Text(
-              currentQuestion.text,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold), // Estilo del texto de la pregunta
-            ),
-            SizedBox(height: 20), // Espacio entre la pregunta y las opciones
+      appBar: AppBar(),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0), // Agregamos un margen interno
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment
+                    .start, // Alineamos el contenido a la izquierda
+            children: [
+              Text('Pregunta ${currentQuestionIndex + 1}'),
+              // Mostramos el texto de la pregunta
+              Text(
+                currentQuestion.text,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ), // Estilo del texto de la pregunta
+              ),
+              SizedBox(height: 20), // Espacio entre la pregunta y las opciones
+              // Generamos dinámicamente los botones de las opciones de respuesta
+              ...currentQuestion.options.map((option) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 5,
+                  ), // Espaciado vertical entre botones
+                  child: ElevatedButton(
+                    onPressed:
+                        () => checkAnswer(
+                          option,
+                        ), // Llamamos a la función para verificar la respuesta
 
-            // Generamos dinámicamente los botones de las opciones de respuesta
-            ...currentQuestion.options.map((option) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5), // Espaciado vertical entre botones
-                child: ElevatedButton(
-                  onPressed: () => checkAnswer(option), // Llamamos a la función para verificar la respuesta
-                  child: Text(option), // Mostramos el texto de la opción
-                ),
-              );
-            }).toList(), // Convertimos el mapa en una lista de widgets
-          ],
+                    child: Text(option), // Mostramos el texto de la opción
+                  ),
+                );
+              }).toList(), // Convertimos el mapa en una lista de widgets
+            ],
+          ),
         ),
       ),
     );

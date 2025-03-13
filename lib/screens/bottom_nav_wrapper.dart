@@ -18,12 +18,16 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
   void initState() {
     super.initState();
     _screens = [
-      HomeScreen(   changeIndex: changeIndex), // Pantalla de inicio
+      HomeScreen(changeIndex: changeIndex), // Pantalla de inicio
       GameScreen(
         changeIndex: changeIndex, // Pasamos el callback para cambiar el índice
-        updateScore: updateScore, // Pasamos el callback para actualizar el puntaje
+        updateScore:
+            updateScore, // Pasamos el callback para actualizar el puntaje
       ),
-      ResultScreen(score: _score), // Pantalla de resultados con el puntaje actual
+      ResultScreen(
+        changeIndex: changeIndex,
+        score: _score,
+      ), // Pantalla de resultados con el puntaje actual
     ];
   }
 
@@ -32,7 +36,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
     if (index == 2) {
       // Si navegamos a la pantalla de resultados, actualizamos la pantalla con el puntaje más reciente
       setState(() {
-        _screens[2] = ResultScreen(score: _score);
+        _screens[2] = ResultScreen(changeIndex: changeIndex, score: _score);
         currentIndex = index;
       });
     } else {
@@ -52,7 +56,8 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[currentIndex], // Mostramos la pantalla correspondiente al índice
+      body:
+          _screens[currentIndex], // Mostramos la pantalla correspondiente al índice
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) => changeIndex(index),
@@ -62,7 +67,10 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Inicio'),
           BottomNavigationBarItem(icon: Icon(Icons.quiz), label: 'Juego'),
-          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: 'Resultados'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.leaderboard),
+            label: 'Resultados',
+          ),
         ],
       ),
     );
