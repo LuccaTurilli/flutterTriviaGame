@@ -7,7 +7,7 @@ class TriviaService {
   final String _baseUrl = 'https://opentdb.com/api.php';
 
   Future<List<Question>> fetchQuestions({
-    int amount = 10,
+    int amount = 0,
     String category = '',
     String difficulty = '',
   }) async {
@@ -22,7 +22,8 @@ class TriviaService {
 
       // Verificar el código de estado HTTP
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+        final decodedBody = utf8.decode(response.bodyBytes);
+        final data = json.decode(decodedBody);
 
         // Verificar si la API devolvió un error
         if (data['response_code'] != 0) {
@@ -30,6 +31,7 @@ class TriviaService {
         }
 
         final List<dynamic> results = data['results'];
+
         return results.map((json) => Question.fromJson(json)).toList();
       } else {
         throw Exception('Error en la solicitud HTTP: ${response.statusCode}');

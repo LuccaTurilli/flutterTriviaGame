@@ -69,8 +69,34 @@ class _GameScreenState extends State<GameScreen> {
     // Verificamos si la respuesta seleccionada es correcta.
     if (currentQuestion.isCorrect(selectedOption)) {
       setState(() {
+        /*   ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isCorrect ? '¡Respuesta Correcta!' : 'Respuesta Incorrecta',
+        ),
+        backgroundColor: isCorrect ? Colors.green : Colors.red,
+        duration: Duration(seconds: 1),
+      ),
+    );
+
+*/
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('¡Respuesta Correcta!'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
         score++; // Incrementamos el puntaje si la respuesta es correcta
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('¡Respuesta incorrecta!'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 1),
+        ),
+      );
     }
 
     // Si no estamos en la última pregunta, avanzamos a la siguiente.
