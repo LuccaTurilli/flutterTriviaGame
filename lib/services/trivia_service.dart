@@ -1,37 +1,45 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/question.dart';
 
 class TriviaService {
-  // URL base de la API
   final String _baseUrl = 'https://opentdb.com/api.php';
 
-
-  // Método para obtener preguntas desde la API
   Future<List<Question>> fetchQuestions({
-    int amount = 10, // Número de preguntas
-    String category = '', // Categoría (opcional)
-    String difficulty = '', // Dificultad (opcional)
+    int amount = 10,
+    String category = '',
+    String difficulty = '',
   }) async {
     try {
       // Construir la URL con parámetros
-      final response = await http.get(Uri.parse(
+      final url = Uri.parse(
         '$_baseUrl?amount=$amount&category=$category&difficulty=$difficulty&type=multiple',
-      ));
+      );
 
-      // Verificar si la respuesta fue exitosa
+      // Realizar la solicitud HTTP con un tiempo de espera
+      final response = await http.get(url).timeout(Duration(seconds: 10));
+
+      // Verificar el código de estado HTTP
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> results = data['results'];
 
-        // Convertir los datos JSON en objetos Question
+        // Verificar si la API devolvió un error
+        if (data['response_code'] != 0) {
+          throw Exception('Error en la API: ${data['response_code']}');
+        }
+
+        final List<dynamic> results = data['results'];
         return results.map((json) => Question.fromJson(json)).toList();
       } else {
-        throw Exception('Error al cargar las preguntas: ${response.statusCode}');
+        throw Exception('Error en la solicitud HTTP: ${response.statusCode}');
       }
+    } on TimeoutException {
+      throw Exception('La solicitud a la API tardó demasiado tiempo.');
+    } on FormatException {
+      throw Exception('La respuesta de la API no tiene el formato esperado.');
     } catch (e) {
       throw Exception('Error al conectar con la API: $e');
     }
   }
 }
-

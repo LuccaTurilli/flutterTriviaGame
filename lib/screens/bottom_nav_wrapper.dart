@@ -9,7 +9,7 @@ class BottomNavWrapper extends StatefulWidget {
 }
 
 class _BottomNavWrapperState extends State<BottomNavWrapper> {
-  int _currentIndex = 0;
+  int currentIndex = 0;
   int _score = 0; // Variable para almacenar el puntaje global
 
   late final List<Widget> _screens; // Declaramos la lista como "late"
@@ -18,7 +18,7 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
   void initState() {
     super.initState();
     _screens = [
-      HomeScreen(), // Pantalla de inicio
+      HomeScreen(   changeIndex: changeIndex), // Pantalla de inicio
       GameScreen(
         changeIndex: changeIndex, // Pasamos el callback para cambiar el índice
         updateScore: updateScore, // Pasamos el callback para actualizar el puntaje
@@ -33,11 +33,11 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
       // Si navegamos a la pantalla de resultados, actualizamos la pantalla con el puntaje más reciente
       setState(() {
         _screens[2] = ResultScreen(score: _score);
-        _currentIndex = index;
+        currentIndex = index;
       });
     } else {
       setState(() {
-        _currentIndex = index;
+        currentIndex = index;
       });
     }
   }
@@ -52,9 +52,9 @@ class _BottomNavWrapperState extends State<BottomNavWrapper> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex], // Mostramos la pantalla correspondiente al índice
+      body: _screens[currentIndex], // Mostramos la pantalla correspondiente al índice
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: currentIndex,
         onTap: (index) => changeIndex(index),
         selectedItemColor: Colors.teal,
         unselectedItemColor: Colors.grey,

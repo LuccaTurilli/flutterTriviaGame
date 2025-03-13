@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
+ 
+ 
+   final Function(int) changeIndex;
+
+  const HomeScreen({super.key, required this.changeIndex}); // Callback para cambiar el índice del BottomNavigationBar
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,8 +14,7 @@ class HomeScreen extends StatelessWidget {
       body: Center(
         child: ElevatedButton(
           onPressed: () {
-            // Navegar a la pantalla de juego
-            Navigator.pushNamed(context, '/game');
+            changeIndex(1); // Cambiamos al índice 1 (pantalla de juego)
           },
           child: Text('Bienvenido triviaventurero, comenzar Trivia'),
         ),
