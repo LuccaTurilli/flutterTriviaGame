@@ -20,7 +20,7 @@ class HomeScreen extends StatelessWidget {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  changeIndex(1); // Cambiamos al índice 1 (pantalla de juego)
+
                 },
                 child: Text(
                   'Bienvenido triviaventurero elije una categoría, para comenzar con la trivia',
@@ -29,7 +29,9 @@ class HomeScreen extends StatelessWidget {
             ),
             DropdownButtonExample(),
 
-            OutlinedButton(onPressed: () {}, child: const Text('Siguiente')),
+            OutlinedButton(onPressed: () {
+                changeIndex(1); // Cambiamos al índice 1 (pantalla de juego)
+            }, child: const Text('Siguiente')),
           ],
         ),
       ),
