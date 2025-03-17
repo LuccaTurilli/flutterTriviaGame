@@ -1,95 +1,83 @@
 import 'package:flutter/material.dart';
-import '../services/trivia_service.dart'; // Importamos el servicio para conectarnos a la API
-import '../models/question.dart'; // Importamos el modelo de pregunta
+import 'package:provider/provider.dart';
+import '../services/trivia_service.dart'; // Servicio para conectarse a la API
+import '../models/question.dart'; // Modelo de pregunta
+import '../providers/question_provider.dart'; // Provider para gestionar las preguntas
 
 class GameScreen extends StatefulWidget {
-  final Function(int)
-  changeIndex; // Callback para cambiar el índice del BottomNavigationBar
-  final Function(int) updateScore; // Callback para actualizar el puntaje
+  /// Callback para cambiar el índice del BottomNavigationBar.
+  final Function(int) changeIndex;
 
-  GameScreen({required this.changeIndex, required this.updateScore});
+  const GameScreen({required this.changeIndex});
 
   @override
   _GameScreenState createState() => _GameScreenState();
 }
 
 class _GameScreenState extends State<GameScreen> {
-  // Inicializamos una lista vacía para almacenar las preguntas.
-  // Esto asegura que `questions` siempre tenga un valor inicial.
-  List<Question> questions = [];
-
-  // Índice de la pregunta actual. Comienza en 0 (primera pregunta).
+  /// Índice de la pregunta actual.
   int currentQuestionIndex = 0;
 
-  // Puntaje del jugador. Se incrementa cuando el usuario responde correctamente.
-  int score = 0;
-
-  // Indicador de carga. Es `true` mientras se cargan las preguntas desde la API.
+  /// Indicador de carga mientras se cargan las preguntas.
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    // Llamamos al método para cargar las preguntas desde la API cuando se inicia la pantalla.
-    fetchQuestionsFromAPI();
+    loadQuestions(); // Cargar preguntas al iniciar la pantalla.
   }
 
-  // Método para cargar preguntas desde la API
-  Future<void> fetchQuestionsFromAPI() async {
-    final triviaService = TriviaService(); // Instancia del servicio de la API
-    try {
-      // Obtenemos las preguntas desde la API usando el método `fetchQuestions`.
-      // Usamos `await` para esperar a que el `Future` se complete.
-      final fetchedQuestions = await triviaService.fetchQuestions(
-        amount: 5,
-        category: "25",
-      );
+  /// Método para cargar las preguntas desde el QuestionProvider.
+  Future<void> loadQuestions() async {
+    final questionProvider = Provider.of<QuestionProvider>(context, listen: false);
 
-      // Actualizamos el estado con las preguntas obtenidas y desactivamos el indicador de carga.
-      setState(() {
-        questions = fetchedQuestions; // Asignamos las preguntas cargadas
-        isLoading = false; // Indicamos que la carga ha terminado
-      });
-    } catch (e) {
-      // Si ocurre un error al cargar las preguntas, lo mostramos en la consola.
-      print('Error al cargar las preguntas: $e');
-
-      // Actualizamos el estado para desactivar el indicador de carga incluso si hay un error.
-      setState(() {
-        isLoading = false;
-      });
+    // Verificar si ya hay preguntas cargadas en el provider.
+    if (!questionProvider.areQuestionsLoaded) {
+      try {
+        final triviaService = TriviaService();
+        final fetchedQuestions = await triviaService.fetchQuestions(amount: 5); // Cargar 5 preguntas.
+        questionProvider.setQuestions(fetchedQuestions); // Guardar preguntas en el provider.
+      } catch (e) {
+        print('Error al cargar las preguntas: $e');
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Error'),
+            content: Text('No se pudieron cargar las preguntas. Por favor, inténtalo de nuevo.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cerrar'),
+              ),
+            ],
+          ),
+        );
+      }
     }
+
+    setState(() {
+      isLoading = false; // Finalizar la carga.
+    });
   }
 
-  // Función para verificar si la respuesta seleccionada es correcta
+  /// Método para verificar si la respuesta seleccionada es correcta.
   void checkAnswer(String selectedOption) {
-    // Obtenemos la pregunta actual basándonos en el índice.
-    final currentQuestion = questions[currentQuestionIndex];
+    final questionProvider = Provider.of<QuestionProvider>(context, listen: false);
+    final currentQuestion = questionProvider.questions[currentQuestionIndex];
 
-    // Verificamos si la respuesta seleccionada es correcta.
+    // Verificar si la respuesta seleccionada es correcta.
     if (currentQuestion.isCorrect(selectedOption)) {
       setState(() {
-        /*   ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          isCorrect ? '¡Respuesta Correcta!' : 'Respuesta Incorrecta',
-        ),
-        backgroundColor: isCorrect ? Colors.green : Colors.red,
-        duration: Duration(seconds: 1),
-      ),
-    );
-
-*/
-        ScaffoldMessenger.of(context).showSnackBar(
+      questionProvider.updateScore(1); // Incrementar el puntaje en el provider. // Incrementar el puntaje si la respuesta es correcta.
+         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('¡Respuesta Correcta!'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 1),
           ),
-        );
-        score++; // Incrementamos el puntaje si la respuesta es correcta
+        );      
       });
-    } else {
+    }else{
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('¡Respuesta incorrecta!'),
@@ -99,83 +87,81 @@ class _GameScreenState extends State<GameScreen> {
       );
     }
 
-    // Si no estamos en la última pregunta, avanzamos a la siguiente.
-    if (currentQuestionIndex < questions.length - 1) {
+    // Si no estamos en la última pregunta, avanzar a la siguiente.
+    if (currentQuestionIndex < questionProvider.questions.length - 1) {
       setState(() {
-        currentQuestionIndex++; // Avanzamos al siguiente índice de pregunta
+        currentQuestionIndex++;
       });
     } else {
-      // Si ya no hay más preguntas, navegamos a la pantalla de resultados.
-      widget.updateScore(score); // Actualizamos el puntaje global
-      widget.changeIndex(2); // Navegamos a la pantalla de resultados (índice 2)
+      // Si ya no hay más preguntas, navegar a la pantalla de resultados.
+      widget.changeIndex(2); // Cambiar al índice de la pantalla de resultados.
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Si `isLoading` es `true`, mostramos un indicador de carga.
+    final questionProvider = Provider.of<QuestionProvider>(context);
+
+    // Mostrar un indicador de carga mientras se cargan las preguntas.
     if (isLoading) {
       return Scaffold(
         appBar: AppBar(title: Text('Trivia App')),
         body: Center(
-          child: CircularProgressIndicator(), // Indicador de carga circular
+          child: CircularProgressIndicator(),
         ),
       );
     }
 
-    // Si `questions` está vacía después de intentar cargar las preguntas, mostramos un mensaje de error.
-    if (questions.isEmpty) {
+    // Mostrar un mensaje si no hay preguntas disponibles.
+    if (questionProvider.questions.isEmpty) {
       return Scaffold(
         appBar: AppBar(title: Text('Trivia App')),
         body: Center(
-          child: Text(
-            'No se pudieron cargar las preguntas.',
-          ), // Mensaje de error
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('No se pudieron cargar las preguntas.'),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: loadQuestions, // Reintentar cargar preguntas.
+                child: Text('Reintentar'),
+              ),
+            ],
+          ),
         ),
       );
     }
 
-    // Obtenemos la pregunta actual basándonos en el índice.
-    final currentQuestion = questions[currentQuestionIndex];
+    // Obtener la pregunta actual basándonos en el índice.
+    final currentQuestion = questionProvider.questions[currentQuestionIndex];
 
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0), // Agregamos un margen interno
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment
-                    .start, // Alineamos el contenido a la izquierda
-            children: [
-              Text('Pregunta ${currentQuestionIndex + 1}'),
-              // Mostramos el texto de la pregunta
-              Text(
-                currentQuestion.text,
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ), // Estilo del texto de la pregunta
-              ),
-              SizedBox(height: 20), // Espacio entre la pregunta y las opciones
-              // Generamos dinámicamente los botones de las opciones de respuesta
-              ...currentQuestion.options.map((option) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 5,
-                  ), // Espaciado vertical entre botones
-                  child: ElevatedButton(
-                    onPressed:
-                        () => checkAnswer(
-                          option,
-                        ), // Llamamos a la función para verificar la respuesta
+      appBar: AppBar(
+        title: Text('Pregunta ${currentQuestionIndex + 1}'), // Mostrar el número de la pregunta.
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0), // Agregar margen interno.
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, // Alinear el contenido a la izquierda.
+          children: [
+            // Mostrar el texto de la pregunta.
+            Text(
+              currentQuestion.text,
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 20), // Espacio entre la pregunta y las opciones.
 
-                    child: Text(option), // Mostramos el texto de la opción
-                  ),
-                );
-              }).toList(), // Convertimos el mapa en una lista de widgets
-            ],
-          ),
+            // Generar dinámicamente los botones de las opciones de respuesta.
+            ...currentQuestion.options.map((option) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5), // Espaciado vertical entre botones.
+                child: ElevatedButton(
+                  onPressed: () => checkAnswer(option), // Verificar la respuesta al presionar.
+                  child: Text(option), // Mostrar el texto de la opción.
+                ),
+              );
+            }).toList(), // Convertir el mapa en una lista de widgets.
+          ],
         ),
       ),
     );

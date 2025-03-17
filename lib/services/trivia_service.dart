@@ -16,7 +16,6 @@ class TriviaService {
       final url = Uri.parse(
         '$_baseUrl?amount=$amount&category=$category&difficulty=$difficulty&type=multiple',
       );
-
       // Realizar la solicitud HTTP con un tiempo de espera
       final response = await http.get(url).timeout(Duration(seconds: 10));
 
@@ -24,7 +23,6 @@ class TriviaService {
       if (response.statusCode == 200) {
         final decodedBody = utf8.decode(response.bodyBytes);
         final data = json.decode(decodedBody);
-
         // Verificar si la API devolvió un error
         if (data['response_code'] != 0) {
           throw Exception('Error en la API: ${data['response_code']}');

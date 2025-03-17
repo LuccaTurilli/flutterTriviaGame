@@ -50,9 +50,10 @@ class Question {
 
   // Método para verificar si una respuesta seleccionada es correcta
   bool isCorrect(String answer) {
+
     //quitamos las 2 primeras letras que son de la numeración
     answer = answer.substring(answer.indexOf(')') + 2).trim();
-
+    print(answer);
     // Comparamos la respuesta seleccionada con la respuesta correcta
     return answer == correctAnswer;
   }
