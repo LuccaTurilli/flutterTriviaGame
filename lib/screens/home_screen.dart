@@ -5,6 +5,8 @@ import '../services/trivia_service.dart'; // Importamos el servicio para conecta
 import '../items/dropdown_button.dart'; // Importamos el widget personalizado CategoryDropdown
 import '../items/fade_in_left.dart';
 
+import 'package:hive/hive.dart';
+import '../models/user.dart';  // Importa el modelo User
 
 
 /// Pantalla de inicio de la aplicación.
@@ -51,6 +53,29 @@ FadeInLeft(
 
 Text('Bienvenido!!', style: TextStyle(fontSize: 24)), // Texto de bienvenida
        
+ ElevatedButton(
+              onPressed: () {
+                var box = Hive.box<User>('users');
+                box.put('user1', User('John Doe', 25));
+                print('Usuario guardado');
+              },
+              child: Text('Guardar Usuario'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                var box = Hive.box<User>('users');
+                User? user = box.get('user1');
+                if (user != null) {
+                  print('Nombre: ${user.name}, Edad: ${user.age}');
+                } else {
+                  print('Usuario no encontrado');
+                }
+              },
+              child: Text('Leer Usuario'),
+            ),
+
+
             SizedBox(height: 20), // Espacio entre la imagen y el Dropdown
 
             // Widget personalizado para seleccionar una categoría
