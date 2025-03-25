@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Importa el paquete provider
+import 'screens/configuration_screen.dart'; // Importa otros providers si los tienes
 import 'screens/bottom_nav_wrapper.dart'; // Importa el wrapper principal
 import 'providers/question_provider.dart'; // Importa el QuestionProvider
 import 'providers/nav_provider.dart'; // Importa otros providers si los tienes
+
+
+
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+
 
 import 'models/user.dart';  // Importa el modelo User
 //import 'helpers/shared_preferences_helper.dart'; // Importa la clase helper
@@ -38,7 +43,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BottomNavWrapper(), // El wrapper principal que contiene las pantallas
+      home: ConfigurationScreen() , // El wrapper principal que contiene las pantallas
     );
   }
 }
